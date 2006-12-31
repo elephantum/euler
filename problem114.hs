@@ -20,13 +20,15 @@ cache key computor = do c <- get
                           Just val -> do
                             return val
 
-divs' (Red n) | n < 3 = 0
-              | n == 3 = 1
-              | n > 3 = do vals <- mapM (\x -> cache (Black n-x) divs') [3..n-1]
-                           return 1 + (sum vals)
-divs' (Black n) | n == 0 = 0
-                | n == 1 = 1
-                | n > 1 = do vals <- mapM (\x -> cache 
+divs' (Red n) | n < 3  = return 0
+              | n == 3 = return 1
+              | n > 3  = do vals <- mapM (\x -> cache (Black $ n-x) divs') [3..n-1]
+                           return $ 1 + (sum vals)
+
+divs' (Black n) | n == 0 = return 0
+                | n == 1 = return 1
+                | n > 1  = do vals <- mapM (\x -> cache (Red $ n-x) divs') [1..n-1]
+                             return $ 1 + (sum vals)
 
 divs n = (red n) + (black n)
     where
