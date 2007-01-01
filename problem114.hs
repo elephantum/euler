@@ -3,7 +3,16 @@ import Control.Monad.State
 
 data Colored a = Red a | Black a deriving (Eq, Show)
 
+instance (Ord a) => Ord (Colored a) where
+    compare (Red a)   (Red b)   = compare a b
+    compare (Black a) (Black b) = compare a b
+    compare (Red _)   (Black _) = LT
+    compare (Black _) (Red _)   = GT
+
 type Cache = Map.Map (Colored Integer) Integer
+
+emptyCache :: Cache
+emptyCache = Map.empty
 
 {- cachePut :: (Colored Integer) -> Integer -> StateTrans Cache ()
 cachePut k v = ST(\m->(insert k v m, ()))
@@ -11,25 +20,33 @@ cachePut k v = ST(\m->(insert k v m, ()))
 cacheGet :: (Colored Integer) -> StateTrans Cache (Maybe Integer)
 cacheGet k = ST(\m->(m, -}
 
-cache key computor = do c <- get
+cache computor key = do c <- get
                         case ((\x -> Map.lookup x c) =<< Just key) of
                           Nothing -> do
                             val <- computor key
-                            put (Map.insert key val c)
+                            c' <- get
+                            put (Map.insert key val c')
                             return val
                           Just val -> do
                             return val
 
-divs' (Red n) | n < 3  = return 0
-              | n == 3 = return 1
-              | n > 3  = do vals <- mapM (\x -> cache (Black $ n-x) divs') [3..n-1]
-                           return $ 1 + (sum vals)
+divs' p = cache divs'' p
 
-divs' (Black n) | n == 0 = return 0
-                | n == 1 = return 1
-                | n > 1  = do vals <- mapM (\x -> cache (Red $ n-x) divs') [1..n-1]
+divs'' (Red n) | n < 3  = return 0
+               | n == 3 = return 1
+               | n > 3  = do vals <- mapM (\x -> divs' (Black $ n-x)) [3..n-1]
                              return $ 1 + (sum vals)
 
+divs'' (Black n) | n == 0 = return 0
+                 | n == 1 = return 1
+                 | n > 1  = do vals <- mapM (\x -> divs' (Red $ n-x)) [1..n-1]
+                               return $ 1 + (sum vals)
+
+divs n = runState (do r <- divs' (Red n)
+                      b <- divs' (Black n)
+                      return $ r + b) emptyCache
+
+{-
 divs n = (red n) + (black n)
     where
       red n | n < 3 = 0
@@ -38,5 +55,6 @@ divs n = (red n) + (black n)
       black n | n == 0 = 0
               | n == 1 = 1
               | n > 1 = 1 + (sum $ map (\x->red (n-x)) [1..n-1])
+-}
 
 -- main = putStrLn $ show $ divs 50
