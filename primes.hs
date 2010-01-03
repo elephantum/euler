@@ -5,7 +5,7 @@ divisible b a = mod a b == 0
 divisors n = divisors' n primes_gen
     where
       divisors' _ [] = []
-      divisors' n pp@(p:ps) | divisible p n = [p] ++ divisors' (div n p) pp
+      divisors' n pp@(p:ps) | divisible p n = p : divisors' (div n p) pp
                             | otherwise = divisors' n ps
 
 cum_divisors nn = cum_divisors' nn primes_gen
