@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 
+def num_to_list(n):
+  while n:
+    yield n % 10
+    n /= 10
+
+def list_to_num(l):
+  return sum(d * (10 ** n) for n, d in enumerate(l))
+
 def gen_num(num_len, digits):
   '''
    num_len -- длина числа
@@ -22,7 +30,7 @@ def gen_num(num_len, digits):
 
   for num, left_digits in _gen_num(num_len, digits):
     if len(num) > 0:
-      yield reduce((lambda a,b: a*10+b), num), left_digits 
+      yield list_to_num(num), left_digits 
 
 def gen_muls():
   '''
@@ -35,11 +43,6 @@ def gen_muls():
     for a, a_left_digits in gen_num(a_len, digits):
       for b, _ in gen_num(b_len, a_left_digits):
         yield a, b
-
-def num_to_list(n):
-  while n:
-    yield n % 10
-    n /= 10
 
 def interesting_muls(a, b):
   a_digits = list(num_to_list(a))
@@ -57,5 +60,6 @@ def interesting_ids():
     if interesting_muls(a, b):
       yield a, b, a*b
 
-interesting_abs = set(ab for a, b, ab in interesting_ids())
-print sum(interesting_abs)
+if __name__ == "__main__":
+  interesting_abs = set(ab for a, b, ab in interesting_ids())
+  print sum(interesting_abs)
