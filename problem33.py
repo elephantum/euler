@@ -1,6 +1,7 @@
 from problem32 import list_to_num, num_to_list
 import itertools
 import operator
+import math
 
 class PrimesGen:
   class PrimesIter:
@@ -21,8 +22,16 @@ class PrimesGen:
     return PrimesGen.PrimesIter(self)
 
   def next(self):
-    for p in self.known_primes:
-      if self.n%p == 0:
+    n_sqrt = math.sqrt(self.n)
+    def int_primes():
+      for i in self.known_primes:
+        if i <= n_sqrt:
+          yield i
+        else:
+          break
+
+    for p in int_primes():
+      if self.n % p == 0:
         break
     else:
       self.known_primes.append(self.n)
