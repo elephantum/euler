@@ -3,7 +3,6 @@ vals = [2, 5, 10, 20, 50, 100, 200]
 def generate_divs(n):
     def gen(n, left_vals):
         if len(left_vals) == 0:
-            print
             return 1
 
         res = 0
