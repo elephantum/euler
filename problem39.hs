@@ -10,8 +10,8 @@ sides p = [(a, b, p - a - b) | a <- [1 .. p `div` 2], b <- [a+1 .. p-a-1],
 rightTriangles p = filter isRightTriangle $ sides p
 
 triangles :: [(Int, Int)]
-triangles = map (\p -> (p, length $ rightTriangles p)) [1..1000] `using` parListChunk 100 rdeepseq
+triangles = map (\p -> (p, length $ rightTriangles p)) [1..1000]
 
-res = fst $ maximumBy (\a b -> compare (snd a) (snd b)) $ triangles
+res = fst $ maximumBy (\a b -> compare (snd a) (snd b)) $ triangles `using` parList rdeepseq
 
 main = putStrLn $ show res
