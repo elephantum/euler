@@ -12,6 +12,6 @@ rightTriangles p = filter isRightTriangle $ sides p
 triangles :: [(Int, Int)]
 triangles = map (\p -> (p, length $ rightTriangles p)) [1..1000] `using` parListChunk 100 rdeepseq
 
-res = seq triangles (fst $ maximumBy (\a b -> compare (snd a) (snd b)) $ triangles)
+res = fst $ maximumBy (\a b -> compare (snd a) (snd b)) $ triangles
 
 main = putStrLn $ show res
