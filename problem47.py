@@ -12,8 +12,12 @@ def is_interesting(n):
     return True
 
 def find_n():
+    seq_4 = 0
     for i in itertools.count():
-        if count_factors(i) >= 3:
-            for d in range(4):
-                if is_interesting(i*4 - d):
-                    return i*4 - d
+        if count_factors(i) >= 4:
+            seq_4 += 1
+
+            if seq_4 == 4:
+                return i - 3
+        else:
+            seq_4 = 0
