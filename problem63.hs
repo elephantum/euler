@@ -1,0 +1,1 @@
+length $ concat [takeWhile (\(a, b) -> a <= b) [(i, length $ show $ pow n i) | i <- [1..]] | n<-[1..9]]
