@@ -1,5 +1,25 @@
 import Control.Monad.Writer.Lazy
 
+{-
+(x^2 + y^2) = r^2
+|r - r'| < d
+r < r' + d
+r > r' - d
+(x^2 + y^2) < (r' + d)^2
+(x^2 + y^2) > (r' - d)^2
+-}
+
+-- n - current level of details [1..24]
+-- x, y - coordinates with respect of n
+interestingPoint n x y = r2 > r'2 && r2 < r''2
+  where v2n1 = 2^(n - 1)
+        r2 = (x - v2n1)^2 + (y - v2n1)^2
+        r'2 = (v2n1 - 2)^2
+        r''2 = (v2n1 + 2)^2
+
+interestingCell n x y = if interestingPoint (n*2) (x*2 + 1) (y*2 + 1) 
+                        then
+
 data Color = Black | White deriving (Show, Eq)
 
 type Region = ((Integer, Integer), Integer)
@@ -22,7 +42,7 @@ reallyDescend liftVal f r@((x, y), s) =
   in 
    subRegions `seq` mapM_ (descendRegion liftVal f) subRegions
 
-fill n = \x y -> if (x - v2n1)^2 + (y - v2n1)^2 <= v22n2 then Black else White
+fill n x y = if (x - v2n1)^2 + (y - v2n1)^2 <= v22n2 then Black else White
   where 
     v2n = 2^n
     v2n1 = 2^(n-1)
