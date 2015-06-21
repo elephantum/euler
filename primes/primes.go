@@ -1,12 +1,16 @@
 package primes
 
-var prime_numbers []int = []int{}
+var prime_numbers []int = []int{2}
 
 func IterPrimes() chan int {
 	res := make(chan int)
 
 	go func() {
-		for i := 2; true; i++ {
+		for _, p := range prime_numbers {
+			res <- p
+		}
+
+		for i := prime_numbers[len(prime_numbers) - 1] + 1; true; i++ {
 			is_prime := true
 			for _,j := range(prime_numbers) {
 				if i == j {
@@ -26,4 +30,15 @@ func IterPrimes() chan int {
 	}()
 
 	return res
+}
+
+func IsPrime(n int) bool {
+	primes := IterPrimes()
+	for p := <- primes; p < n; p = <- primes {
+		if n % p == 0 {
+			return false
+		}
+	}
+
+	return true
 }
