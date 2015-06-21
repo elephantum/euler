@@ -3,6 +3,7 @@ package main
 import(
 	"fmt"
 	"strconv"
+	"./primes"
 )
 
 type Digit interface {
@@ -97,16 +98,21 @@ func IterNumbers(digits int, placeholders int) chan Number {
 }
 
 func main() {
-	c := 0
-	for n := range IterNumbers(4, 2) {
-		if c % 1000 == 0 {
-			fmt.Println(n.AsString())
-		}
-		c++
-		if CountPrimes(n) == 8 {
-			fmt.Println(n.AsString())
-		}
+	primes_it := primes.IterPrimes()
+	for i := 0; i < 100; i++ {
+		fmt.Println(<-primes_it)
 	}
+
+	// c := 0
+	// for n := range IterNumbers(4, 2) {
+	// 	if c % 1000 == 0 {
+	// 		fmt.Println(n.AsString())
+	// 	}
+	// 	c++
+	// 	if CountPrimes(n) == 8 {
+	// 		fmt.Println(n.AsString())
+	// 	}
+	// }
 
 	// for a := 0; a < 10; a++ {
 	// 	for b := 0; b < 10; b++ {

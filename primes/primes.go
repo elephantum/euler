@@ -1,9 +1,5 @@
 package primes
 
-import (
-	"fmt"
-)
-
 var prime_numbers []int = []int{}
 
 func IterPrimes() chan int {
