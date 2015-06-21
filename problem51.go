@@ -2,137 +2,94 @@ package main
 
 import(
 	"fmt"
-	"strconv"
-	"./primes"
+  "./primes"
 )
 
-type Digit interface {
-	Apply(substitution int) int
-	AsString() string
+func SplitNumber(n int) []int {
+	res := []int{}
+
+	for ; n > 0; n = n / 10 {
+		res = append(res, n % 10)
+	}
+
+	return res
 }
 
-type NumDigit struct {
-	n int
-}
-
-func (d NumDigit) Apply(p int) int {
-	return d.n
-}
-
-func (d NumDigit) AsString() string {
-	return strconv.Itoa(d.n)
-}
-
-type Placeholder struct {}
-
-func (_ Placeholder) Apply(p int) int {
-	return p
-}
-
-func (_ Placeholder) AsString() string {
-	return "x"
-}
-
-type Number struct {
-	digits []Digit
-}
-
-func (n Number) Apply(p int) int {
+func MakeNumber(nn []int) int {
 	res := 0
-	for _,v := range n.digits {
-		res = res * 10 + v.Apply(p)
+	for i := len(nn) - 1; i >= 0; i-- {
+		res = res*10 + nn[i]
 	}
+
 	return res
 }
 
-func (n Number) AsString() string {
-	res := ""
-	for _,v := range n.digits {
-		res = res + v.AsString()
-	}
-	return res
-}
+func Replace(nn []int, from int, to int) []int {
+	res := make([]int, len(nn))
+	var n_ int
 
-func IsPrime(x int) bool {
-	for d := 2; d < x; d++ {
-		if x % d == 0 {
-			return false
+	for i, n := range nn {
+		if n == from {
+			n_ = to
+		} else {
+			n_ = n
 		}
-	}
-	return true
-}
 
-func CountPrimes(x Number) int {
-	res := 0
-	for t := 0; t < 10; t++ {
-		if IsPrime(x.Apply(t)) {res++}
+		res[i] = n_
 	}
+
 	return res
 }
 
-func IterNumbersRec(res chan Number, n []Digit, digits int, placeholders int) {
-	if digits == 0 && placeholders == 0 {
-		res <- Number{n}
+func IsNFamily(n_family, n int) bool {
+	nn := SplitNumber(n)
+
+	if len(nn) == 1 {
+		return false
 	}
 
-	if digits > 0 {
-		for i := 1; i < 10; i++ {
-			IterNumbersRec(res, append(n, NumDigit{i}), digits-1, placeholders)
+	for from := 0; from <= 10 - n_family; from++ {
+		family_count := 0
+
+		has_number := false
+		for _, nni := range nn {
+			if from == nni {
+				has_number = true
+				break
+			}
+		}
+
+		if !has_number {
+			break
+		}
+
+		for to := from; to < 10; to++ {
+			if primes.IsPrime(MakeNumber(Replace(nn, from, to))) {
+				family_count ++
+			}
+		}
+
+		if family_count >= n_family {
+			return true
 		}
 	}
 
-	if placeholders > 0 {
-		IterNumbersRec(res, append(n, Placeholder{}), digits, placeholders-1)
-	}
-}
-
-func IterNumbers(digits int, placeholders int) chan Number {
-	res := make(chan Number)
-
-	go func (){
-		IterNumbersRec(res, []Digit{}, digits, placeholders)
-		close(res)
-	}()
-
-	return res
+	return false
 }
 
 func main() {
-	primes_it := primes.IterPrimes()
-	for i := 0; i < 100; i++ {
-		fmt.Println(<-primes_it)
+	it := 0
+
+	for p := range(primes.IterPrimes()) {
+		if it % 1000 == 0 {
+			fmt.Printf("... %v\n", p)
+		}
+
+		if IsNFamily(8, p) {
+			fmt.Println(p)
+			break
+		}
+
+		it++
 	}
-
-	// c := 0
-	// for n := range IterNumbers(4, 2) {
-	// 	if c % 1000 == 0 {
-	// 		fmt.Println(n.AsString())
-	// 	}
-	// 	c++
-	// 	if CountPrimes(n) == 8 {
-	// 		fmt.Println(n.AsString())
-	// 	}
-	// }
-
-	// for a := 0; a < 10; a++ {
-	// 	for b := 0; b < 10; b++ {
-	// 		for c := 0; c < 10; c++ {
-	// 			da := NumDigit{n:a}
-	// 			db := NumDigit{n:b}
-	// 			dc := NumDigit{n:c}
-	//
-	// 			x := Number{[]Digit{
-	// 					da,
-	// 					db,
-	// 					Placeholder{},
-	// 					Placeholder{},
-	// 					dc,
-	// 				}}
-	//
-	// 			if CountPrimes(x) >= 7 {
-	// 				fmt.Printf("%v\n", x.AsString())
-	// 			}
-	// 		}
-	// 	}
-	// }
 }
