@@ -2,7 +2,7 @@ package main
 
 import(
 	"fmt"
-  "./primes"
+  "./primes_era"
 )
 
 func SplitNumber(n int) []int {
@@ -49,7 +49,7 @@ func IsNFamily(n_family, n int) bool {
 	}
 
 	for from := 0; from <= 10 - n_family; from++ {
-		family_count := 0
+		family_count := 1
 
 		has_number := false
 		for _, nni := range nn {
@@ -59,18 +59,16 @@ func IsNFamily(n_family, n int) bool {
 			}
 		}
 
-		if !has_number {
-			break
-		}
-
-		for to := from; to < 10; to++ {
-			if primes.IsPrime(MakeNumber(Replace(nn, from, to))) {
-				family_count ++
+		if has_number {
+			for to := from + 1; to < 10; to++ {
+				if primes_era.IsPrime(MakeNumber(Replace(nn, from, to))) {
+					family_count ++
+				}
 			}
-		}
 
-		if family_count >= n_family {
-			return true
+			if family_count == n_family {
+				return true
+			}
 		}
 	}
 
@@ -78,9 +76,11 @@ func IsNFamily(n_family, n int) bool {
 }
 
 func main() {
+	primes_era.Init()
+
 	it := 0
 
-	for p := range(primes.IterPrimes()) {
+	for p := range(primes_era.IterPrimes()) {
 		if it % 1000 == 0 {
 			fmt.Printf("... %v\n", p)
 		}
