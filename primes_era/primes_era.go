@@ -1,10 +1,12 @@
 package primes_era
 
-const PRIME_LIM int = 100000000
+var PRIME_LIM int
 
 var is_prime []bool
 
-func Init() {
+func Init(lim int) {
+	PRIME_LIM = lim
+
 	is_prime = make([]bool, PRIME_LIM)
 
 	for i := 0; i < PRIME_LIM; i++ {
@@ -27,6 +29,23 @@ func IterPrimes() chan int {
 		for i := 2; i < PRIME_LIM; i++ {
 			if is_prime[i] {
 				res <- i
+			}
+		}
+
+		close(res)
+	}()
+
+	return res
+}
+
+func Factorize(n int) chan int {
+	res := make(chan int)
+
+	go func() {
+		pp := IterPrimes()
+		for p := <- pp; p <= n; p = <-pp {
+			for ; n % p == 0; n = n / p {
+				res <- p
 			}
 		}
 
